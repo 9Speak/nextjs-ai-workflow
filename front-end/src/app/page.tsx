@@ -16,6 +16,10 @@ export default function Home() {
       >
         Bắt đầu quiz →
       </Link>
+
+      <Link href="/leaderboard" className="text-sm text-primary hover:underline">
+        Xem bảng xếp hạng
+      </Link>
     </main>
   );
 }
