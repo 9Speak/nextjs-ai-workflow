@@ -1,179 +1,150 @@
 # Quy trình đầy đủ
 
-Giải thích quy trình chạy thế nào, ai làm gì, làm feature mới vs sửa feature cũ, và
-**nhiều người làm song song không đụng nhau**. Cài đặt trước: xem [SETUP.md](SETUP.md).
+Giải thích pipeline chạy thế nào, ai làm gì, 2 cổng duyệt của con người, làm feature
+mới vs sửa bug, và **nhiều người làm song song không đụng nhau**. Cài đặt: xem [SETUP.md](SETUP.md).
 
 ## Ý tưởng cốt lõi
 
-Claude Code **chính là engine** — không có script trung gian in prompt để copy-paste.
-Bốn lệnh trong `.claude/commands/` là các "prompt mẫu" viết sẵn. Bạn gõ lệnh, Claude
-đọc đúng file của feature và làm đúng việc.
+Claude Code **chính là engine**. Các lệnh trong `.claude/commands/` là "prompt mẫu" viết
+sẵn — bạn gõ lệnh, Claude đọc đúng file của feature và làm đúng việc.
+
+PRD **không build thẳng**. Nó đi qua một pipeline có kiểm soát, với **2 cổng duyệt của
+engineer** để AI không tự tung tự tác:
+
+```
+/new <feature>     tạo ai/<feature>/ + branch feat/<feature>
+      │
+      PM điền prd.md ──(/sync)──► figma.md          (design, nếu có Figma)
+      │
+      ├─(/spec)──►  technical_document.md           (thiết kế kỹ thuật từ PRD)
+      ├─(/tasks)─►  tasks.md                         (chia nhỏ thành task)
+      │
+      ⟵ Engineer XEM & DUYỆT tasks ────────────  CỔNG 1 (đổi "Duyệt: ✅ ĐÃ DUYỆT")
+      │
+      ├─(/implement)─► code + test → task "🟡 chờ confirm"
+      │
+      ⟵ Engineer test. Có bug? ghi feedback.md ──
+      ├─(/fix)──► AI tự dò task sai → sửa → "🟡 chờ confirm"
+      │
+      ⟵ Engineer CONFIRM đã ổn ─────────────────  CỔNG 2
+      │
+      └─(/confirm)─► task "✅ confirmed" + cập nhật docs/<feature>.md + CHANGELOG
+```
 
 **Đơn vị công việc = 1 feature = 1 thư mục `ai/<slug>/` = 1 branch `feat/<slug>` = 1 PR.**
-Đây là điều giữ cho mọi thứ không xung đột (xem mục cuối).
-
-```
-/new quiz-engine
-        │  tạo ai/quiz-engine/ (prd, feedback)  +  branch feat/quiz-engine
-        ▼
-ai/quiz-engine/prd.md ──(/sync)──► ai/quiz-engine/figma.md
-        │                                  │
-        └────────(/audit)──────────────────┴──► ai/quiz-engine/gaps.md
-                                                        │
-                                      (/build)──────────┘──► code + test + PR
-                                                        ▲
-                              ai/quiz-engine/feedback.md (sửa vòng sau)
-```
 
 ## RACI — ai làm gì
 
-| Việc | PM | Designer | Engineer |
-|------|----|----------|----------|
-| Giữ design system (`ai/DESIGN_SYSTEM.md`) + `/design-sync` | I | **R** | C |
-| Viết yêu cầu (`ai/<slug>/prd.md`) | **R** | C | C |
-| Thiết kế Figma feature + dán link vào PRD | C | **R** | I |
-| `/new` `/sync` `/audit` `/build` | I | I | **R** |
-| Review PR & merge | C | C | **R** |
+| Việc | PM | Designer | Engineer | Claude |
+|------|----|----------|----------|--------|
+| Design system (`ai/DESIGN_SYSTEM.md`) + `/design-sync` | I | **R** | C | hỗ trợ |
+| Viết yêu cầu (`prd.md`) | **R** | C | C | — |
+| Thiết kế Figma + dán link | C | **R** | I | — |
+| `/spec` → `/tasks` (sinh tài liệu KT + task) | C | I | **A** | **R** |
+| **Duyệt tasks** (cổng 1) | C | I | **R** | — |
+| `/implement`, `/fix` (code + test) | I | I | **A** | **R** |
+| Test & **confirm** (cổng 2) | C | C | **R** | — |
+| `/confirm` (docs + CHANGELOG) | I | I | **A** | **R** |
+| Merge PR vào main | C | C | **R** | — |
 
-*R = làm, C = góp ý, I = được thông báo.*
+*R = làm, A = duyệt/chịu trách nhiệm, C = góp ý, I = được thông báo.*
 
 ## Design System — nền tảng chung
 
-Trước khi làm feature, dự án cần một **design system**: bộ token dùng chung (màu,
-typography, spacing, radius, shadow) + các component primitive (Button, Card, Input).
-File `ai/DESIGN_SYSTEM.md` là **bản hợp đồng** đó, **do Designer sở hữu**.
+Bộ token dùng chung (màu, typography, spacing, radius, shadow) + component primitive
+(Button, Card, Input). `ai/DESIGN_SYSTEM.md` là **bản hợp đồng**, **Designer sở hữu**.
 
-- **Nguồn:** Figma library (published variables/styles). Link nằm ở đầu `ai/DESIGN_SYSTEM.md`.
-- **Cập nhật:** `/design-sync` kéo token từ Figma library về, cập nhật `DESIGN_SYSTEM.md`
-  (và file token trong code nếu có). Chạy **thưa** — chỉ khi hệ thống đổi.
-- **Cô lập:** vì nó ảnh hưởng *mọi* feature, `/design-sync` đi ra **một PR riêng**
-  (`chore/design-system`). Cả team rebase sau khi merge. Đây chính là cách xử "vùng
-  chung" để hai feature không đánh nhau ở token.
-- **Ràng buộc:** mọi feature phải **adapt** theo nó — `/sync` diễn đạt design feature
-  bằng token (đánh dấu chỗ lệch), `/audit` bắt lỗi hardcode/không tuân thủ, `/build`
-  chỉ dùng token + primitive, không bịa giá trị mới.
-
-> Nếu Figma của một feature dùng màu/spacing chưa có trong hệ thống: `/sync` sẽ đánh
-> dấu "⚠️ lệch design system". Designer quyết định — sửa design cho khớp, hoặc bổ sung
-> token vào hệ thống qua `/design-sync`. Engineer **không** tự hardcode để cho xong.
+- **Nguồn:** Figma library. Link ở đầu `ai/DESIGN_SYSTEM.md`.
+- **Cập nhật:** `/design-sync` kéo token về + cập nhật token trong code (`front-end/src/app/globals.css`, `@theme`). Chạy **thưa**, đi ra **PR riêng** `chore/design-system` (vì ảnh hưởng mọi feature).
+- **Ràng buộc:** `/spec` thiết kế bám token; `/implement` chỉ dùng token + primitive, không hardcode `#hex`/`px`; thiếu token → báo Designer bổ sung, không bịa.
 
 ---
 
-## Luồng 1 — Code tính năng MỚI
+## Luồng 1 — Tính năng MỚI
 
-### Ngày 1 — Spec
-1. **Engineer** (hoặc PM nếu dùng Claude Code): `/new quiz-engine`
-   → tạo `ai/quiz-engine/` và branch `feat/quiz-engine`.
-2. **PM** mở `ai/quiz-engine/prd.md`: điền mục tiêu, tính năng, business logic,
-   *Out of scope*, acceptance criteria.
-3. **Designer** thiết kế trên Figma, dán link (kèm `node-id` của frame) vào mục Figma.
+```
+/new quiz                # ai/quiz/ + branch feat/quiz
+# PM điền ai/quiz/prd.md (mục tiêu, tính năng, business logic, out of scope, AC) + link Figma
+/sync                    # (nếu có Figma) → ai/quiz/figma.md
+/spec                    # PRD → ai/quiz/technical_document.md  ← engineer review thiết kế
+/tasks                   # → ai/quiz/tasks.md
+#   ⟵ Engineer xem tasks.md, chỉnh nếu cần, đổi "## Duyệt: ✅ ĐÃ DUYỆT"   (CỔNG 1)
+/implement               # làm task đã duyệt → lint + test → commit → PR; task → 🟡 chờ confirm
+#   ⟵ Engineer test trên browser
+/confirm                 # nếu OK → task ✅ confirmed + cập nhật docs/CHANGELOG   (CỔNG 2)
+# → merge PR vào main
+```
 
-### Ngày 2 — Build (Engineer, đang ở branch feat/quiz-engine)
-- **`/sync`** — Claude đọc link Figma trong PRD, dùng Figma MCP kéo về cấu trúc
-  component, màu, spacing, typography, các state → ghi `ai/quiz-engine/figma.md`.
-- **`/audit`** — so PRD + figma.md với code trong `src/`. Vì là feature mới, gap =
-  gần như toàn bộ → `ai/quiz-engine/gaps.md`. *Không sửa code ở bước này.*
-- **`/build`** — Claude implement (🔴 trước), bám Figma, rồi
-  `bun run lint` → `bun run test` → commit lên `feat/quiz-engine` → `gh pr create`.
+## Luồng 2 — SỬA BUG
 
-### Ngày 2–3 — Review & vòng lặp
-- Engineer mở PR, test trên browser.
-- Có lỗi? Ghi từng dòng cụ thể vào `ai/quiz-engine/feedback.md`
-  (vd: *"hover quá chậm, 300→150ms"*).
-- `/build` lại → Claude ưu tiên feedback, sửa, đẩy commit mới lên **cùng PR**.
-- Hết lỗi → merge vào main.
+```
+git checkout -b fix/quiz-scoring         # branch mới cho đợt sửa
+# Engineer mô tả bug rõ ràng vào ai/quiz/feedback.md (tái hiện, kỳ vọng vs thực tế)
+/fix                                      # AI tự dò task nào sai → sửa → test → 🟡 chờ confirm
+#   ⟵ Engineer kiểm tra lại
+/confirm                                  # OK → ✅ confirmed + cập nhật docs/CHANGELOG
+```
+
+Điểm mấu chốt: **engineer không cần chỉ tay vào code** — chỉ mô tả bug, `/fix` tự đọc
+`tasks.md` + `technical_document.md` + code để tìm task/đoạn sai, rồi sửa và thêm test
+tái hiện. Sửa xong **chờ engineer confirm** mới đụng tới docs.
+
+**Mở rộng feature đã có:** cập nhật `prd.md` → `/spec` (cập nhật technical_document) →
+`/tasks` (thêm task mới) → duyệt → `/implement` → confirm.
+
+**Sửa vặt 1–2 dòng** (typo, đổi 1 màu): khỏi cần pipeline — sửa thẳng rồi commit.
 
 ---
 
-## Luồng 2 — SỬA / mở rộng tính năng đã có
+## Vì sao docs cập nhật ở CUỐI (sau confirm)
 
-Thư mục `ai/<slug>/` vẫn còn trên main từ lần build trước → tái sử dụng nó.
-
-**A. Đổi yêu cầu hoặc đổi design** (PM/Designer cập nhật spec)
-```
-git checkout main && git pull
-git checkout -b feat/quiz-engine-v2     # branch mới cho đợt sửa
-# PM sửa ai/quiz-engine/prd.md (hoặc Designer đổi Figma)
-/sync        # nếu Figma đổi
-/audit       # gap giờ = phần lệch giữa spec MỚI và code CŨ
-/build       # Claude chỉ sửa đúng phần chênh
-```
-
-**B. Bug phát hiện khi QA / sau khi đã merge**
-```
-git checkout -b fix/quiz-engine-scoring
-# ghi bug vào ai/quiz-engine/feedback.md
-/build       # Claude đọc feedback, sửa, test, mở PR
-```
-
-**C. Sửa vặt 1–2 dòng** (typo, đổi màu nhỏ): không cần cả quy trình — cứ sửa tay
-hoặc nhờ Claude sửa trực tiếp rồi commit. Quy trình dành cho việc có spec.
-
-> Mẹo: `/audit` so spec với code hiện tại, nên nó là cách an toàn để biết "sửa cái
-> này có làm hỏng phần khác của feature không" trước khi `/build`.
+Docs/CHANGELOG chỉ ghi **sau khi engineer confirm đúng** → tài liệu luôn phản ánh
+trạng thái đã kiểm chứng, không phải bản nháp. Mục đích: **lần sau quay lại còn đọc để
+tối ưu / sửa code**. Mỗi feature để lại:
+- `ai/<slug>/` — spec + thiết kế kỹ thuật + tasks (vì sao & làm gì)
+- `docs/features/<slug>.md` — cách hoạt động cho người mới
+- `docs/CHANGELOG.md` — đã ship gì, khi nào
 
 ---
 
 ## Nhiều người làm song song — vì sao KHÔNG xung đột
 
-Đây là phần quan trọng nhất khi team đông hơn 1 người.
+**1. Tách file theo feature.** Mỗi feature ghi vào `ai/<slug>/` riêng — hai người không chạm cùng file spec.
 
-**1. Tách file theo feature.** Mỗi feature ghi vào `ai/<slug>/` riêng. Người làm
-`quiz-engine` và người làm `leaderboard` không bao giờ chạm cùng một file spec.
+**2. Tách branch theo feature.** Mỗi feature một branch `feat/<slug>`. Code chỉ gặp nhau lúc merge PR. Không sửa thẳng `main`.
 
-**2. Tách branch theo feature.** Mỗi feature một branch `feat/<slug>`. Code chỉ gặp
-nhau lúc merge qua PR — đúng cơ chế git sinh ra để xử lý. Không ai sửa thẳng `main`.
+**3. Một người "lái" một branch.** Đừng để hai người cùng `/implement` trên cùng branch.
 
-**3. Một người "lái" một branch tại một thời điểm.** Đừng để hai người cùng chạy
-`/build` trên cùng một branch. Một feature → một engineer phụ trách vòng đời của nó.
+**4. Rebase main thường xuyên.** Trước khi mở PR: `git checkout main && git pull` rồi `git rebase main`.
 
-**4. Rebase main thường xuyên.** Trước khi mở PR: `git checkout main && git pull`
-rồi `git rebase main` trên branch của bạn — giải quyết chênh lệch sớm, PR sạch.
+**5. Tránh đụng "vùng chung".** File lõi nhiều feature cùng cần (vd `globals.css` tokens, layout gốc) → tách PR nhỏ làm trước, cả hai rebase. Design system đã theo đúng cách này (`/design-sync` ra PR riêng).
 
-**5. Tránh đụng "vùng chung".** Nếu hai feature cùng phải sửa một file lõi
-(vd: `src/lib/db.ts`, layout gốc), tách phần đó thành một PR nhỏ làm trước rồi cả
-hai cùng rebase — thay vì để hai PR lớn đánh nhau ở file đó.
+### Dính merge conflict ở code
+Lành: nhờ Claude — `git rebase main`, rồi *"giải quyết conflict, giữ đúng cả hai thay đổi"*. Test lại trước khi push.
 
-### Khi vẫn dính merge conflict ở code
-Bình thường và lành: git báo conflict lúc merge/rebase. Có thể nhờ Claude xử:
-mở branch, chạy `git rebase main`, rồi bảo Claude *"giải quyết conflict, giữ cả hai
-thay đổi cho đúng ý"* — nó đọc cả hai phía và hoà lại. Test lại trước khi push.
-
-### (Tùy chọn) Làm song song thật bằng git worktree
-Muốn chạy hai feature cùng lúc mà không phải `git checkout` qua lại:
+### (Tùy chọn) git worktree
+Chạy 2 feature cùng lúc không cần checkout qua lại:
 ```
 git worktree add ../app-leaderboard feat/leaderboard
 ```
-Mỗi worktree là một thư mục làm việc riêng, mở một cửa sổ Claude Code riêng. Hai
-feature chạy hoàn toàn độc lập trên cùng một repo.
 
 ---
-
-## Vì sao cách này gọn hơn
-
-- **Không copy-paste prompt** — logic nằm trong file lệnh, Claude tự đọc `ai/<slug>/...`.
-- **Figma tự động** qua MCP — không token, không export tay.
-- **Ít bước thủ công** — Engineer gõ lệnh; lint/test/commit/PR Claude tự làm.
-- **Không xung đột** — feature = thư mục = branch = PR; git lo phần gộp.
-- **Một nguồn sự thật** — `prd.md` là yêu cầu, `gaps.md` là việc cần làm, PR là kết quả.
 
 ## Mẹo dùng tốt
 
 **Nên**
-- Mỗi feature một `/new` riêng, đặt slug ngắn gọn dễ hiểu.
-- PM viết PRD cụ thể, ghi rõ business logic và *Out of scope*.
-- Đọc `gaps.md` trước khi `/build` — nắm Claude sắp đổi gì.
-- Feedback ghi từng dòng đo được (số px, ms, màu).
+- PM viết PRD cụ thể (business logic + *Out of scope*) — đầu vào càng rõ, `/spec` và `/tasks` càng đúng.
+- **Đọc kỹ tasks.md trước khi duyệt** — đây là lúc nắn hướng rẻ nhất, trước khi code.
+- Mô tả bug đo được (tái hiện, số liệu) để `/fix` dò trúng task.
 - Rebase main trước khi mở PR.
 
 **Tránh**
-- Hai người cùng `/build` trên một branch.
-- Sửa code tay song song với Claude trên cùng file (ghi vào `feedback.md` thay vì tự sửa).
-- PRD mơ hồ ("làm đẹp lên") — gap sẽ khó tìm.
-- Bỏ qua `/sync` khi Figma vừa đổi (spec cũ → audit sai).
+- Chạy `/implement` khi tasks **chưa duyệt** (lệnh sẽ tự dừng).
+- Hai người cùng làm một branch.
+- Sửa code tay song song với Claude trên cùng file — ghi vào `feedback.md` rồi `/fix`.
+- PRD mơ hồ ("làm đẹp lên").
 
 ## Tùy biến
 
-Các lệnh chỉ là file Markdown trong `.claude/commands/`. Muốn đổi quy tắc (bắt buộc
-test coverage, đổi convention đặt tên branch...), sửa thẳng file `.md` tương ứng —
-không cần code.
+Các lệnh chỉ là file Markdown trong `.claude/commands/`. Đổi quy tắc (bắt buộc coverage,
+convention đặt tên branch, mẫu technical_document...) → sửa thẳng file `.md`, không cần code.

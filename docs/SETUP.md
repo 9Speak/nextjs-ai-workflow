@@ -5,8 +5,8 @@ Mỗi thành viên làm 3 bước này một lần khi clone repo.
 ## 1. Claude Code
 
 Cài Claude Code (CLI hoặc extension VS Code/JetBrains). Mở terminal **trong thư mục
-dự án** rồi chạy `claude`. Các lệnh `/new` `/sync` `/audit` `/build` đã nằm sẵn trong
-`.claude/commands/` nên có ngay khi mở dự án.
+dự án** rồi chạy `claude`. Các lệnh `/new` `/sync` `/spec` `/tasks` `/implement` `/fix`
+`/confirm` `/design-sync` đã nằm sẵn trong `.claude/commands/` nên có ngay khi mở dự án.
 
 ## 2. Bun + dependencies
 
@@ -42,7 +42,7 @@ Figma API token, không cần copy-paste design thủ công.
 bun --version          # ra số phiên bản
 ```
 
-Trong Claude Code: gõ `/` thấy `new`, `sync`, `audit`, `build` trong danh sách → sẵn sàng.
+Trong Claude Code: gõ `/` thấy `new`, `spec`, `tasks`, `implement`, `fix`, `confirm`... → sẵn sàng.
 
 ## (Tùy chọn) GitHub CLI
 
