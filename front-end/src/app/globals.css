@@ -12,6 +12,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Design system tokens — ai/DESIGN_SYSTEM.md (sinh class bg-primary, text-success, ...) */
+@theme {
+  --color-primary: #0066ff;
+  --color-success: #00aa55;
+  --color-danger: #ff3b30;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
