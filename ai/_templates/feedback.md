@@ -1,10 +1,10 @@
-# Feedback
+# Bug / Feedback
 
-> Engineer điền sau khi test PR trên browser. Mỗi dòng = 1 vấn đề cụ thể.
-> Chạy `/build` lại → Claude ưu tiên xử lý các mục chưa tick ở đây trước.
-> Để trống file này nếu không có gì cần sửa.
+> Engineer ghi sau khi test. Mỗi dòng = 1 bug/vấn đề cụ thể, mô tả rõ (tái hiện thế nào,
+> kỳ vọng vs thực tế). Rồi chạy `/fix` → AI tự dò task nào sai để sửa.
+> Để trống nếu không có gì cần sửa.
 
-## Vòng hiện tại
-- [ ] <vd: padding card lệch 8px so với Figma>
-- [ ] <vd: hover quá chậm, 300ms → 150ms>
-- [ ] <vd: thiếu trạng thái loading khi submit>
+## Bug cần sửa
+- [ ] <vd: bấm đáp án đúng nhưng điểm không tăng — kỳ vọng +10>
+- [ ] <vd: trang /quiz lỗi khi hết câu hỏi — màn hình trắng>
+- [ ] <vd: nút "Chơi lại" không reset điểm về 0>
