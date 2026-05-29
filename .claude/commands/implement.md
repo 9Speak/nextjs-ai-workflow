@@ -9,7 +9,7 @@ argument-hint: "[T số mấy / phần nào cần làm]"
    - Nếu CHƯA `✅ ĐÃ DUYỆT` → **DỪNG**, nhắc engineer review & duyệt tasks trước.
 
 2. Làm các task `⬜ todo` (theo thứ tự; nếu `$ARGUMENTS` chỉ định task cụ thể thì làm task đó):
-   - Bám `technical_document.md` + `prd.md` + `figma.md` + `ai/DESIGN_SYSTEM.md`.
+   - Bám `ai/<slug>/technical_document.md` + `product/<slug>.md` + `ai/<slug>/figma.md` + `ai/DESIGN_SYSTEM.md`.
    - **Chỉ dùng token/primitive** của design system, không hardcode màu/spacing.
    - Code trong `front-end/src/`, đúng style sẵn có. Chỉ động vào phạm vi của task.
    - Thêm/sửa test cho từng task.

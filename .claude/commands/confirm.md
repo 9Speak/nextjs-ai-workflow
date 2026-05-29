@@ -13,8 +13,8 @@ argument-hint: "[ten-feature]"
 
 2. Cập nhật tài liệu (dùng ngày hôm nay):
    - **`docs/features/<slug>.md`**: feature làm gì, route, cách hoạt động, file chính,
-     cách test, link spec (`ai/<slug>/`). Viết để người mới đọc hiểu nhanh — để lần sau
-     quay lại còn tối ưu / sửa code.
+     cách test, link spec (PRD `product/<slug>.md` + kỹ thuật `ai/<slug>/`). Viết để người
+     mới đọc hiểu nhanh — để lần sau quay lại còn tối ưu / sửa code.
    - **`docs/FEATURES.md`**: thêm/cập nhật 1 dòng — tên, route, trạng thái ✅, link doc.
    - **`docs/CHANGELOG.md`**: thêm entry lên đầu — ngày, feature, tóm tắt, số PR.
 

@@ -12,9 +12,9 @@ PRD **không build thẳng**. Nó đi qua một pipeline có kiểm soát, với
 engineer** để AI không tự tung tự tác:
 
 ```
-/new <feature>     tạo ai/<feature>/ + branch feat/<feature>
+/new <feature>     tạo product/<feature>.md (PRD) + ai/<feature>/ + branch feat/<feature>
       │
-      PM điền prd.md ──(/sync)──► figma.md          (design, nếu có Figma)
+      PM điền product/<feature>.md ──(/sync)──► ai/<feature>/figma.md   (design, nếu có Figma)
       │
       ├─(/spec)──►  technical_document.md           (thiết kế kỹ thuật từ PRD)
       ├─(/tasks)─►  tasks.md                         (chia nhỏ thành task)
@@ -38,7 +38,7 @@ engineer** để AI không tự tung tự tác:
 | Việc | PM | Designer | Engineer | Claude |
 |------|----|----------|----------|--------|
 | Design system (`ai/DESIGN_SYSTEM.md`) + `/design-sync` | I | **R** | C | hỗ trợ |
-| Viết yêu cầu (`prd.md`) | **R** | C | C | — |
+| Viết yêu cầu (`product/<f>.md`) | **R** | C | C | — |
 | Thiết kế Figma + dán link | C | **R** | I | — |
 | `/spec` → `/tasks` (sinh tài liệu KT + task) | C | I | **A** | **R** |
 | **Duyệt tasks** (cổng 1) | C | I | **R** | — |
@@ -64,7 +64,7 @@ Bộ token dùng chung (màu, typography, spacing, radius, shadow) + component p
 
 ```
 /new quiz                # ai/quiz/ + branch feat/quiz
-# PM điền ai/quiz/prd.md (mục tiêu, tính năng, business logic, out of scope, AC) + link Figma
+# PM điền product/quiz.md (mục tiêu, tính năng, business logic, out of scope, AC) + link Figma
 /sync                    # (nếu có Figma) → ai/quiz/figma.md
 /spec                    # PRD → ai/quiz/technical_document.md  ← engineer review thiết kế
 /tasks                   # → ai/quiz/tasks.md
@@ -89,7 +89,7 @@ git checkout -b fix/quiz-scoring         # branch mới cho đợt sửa
 `tasks.md` + `technical_document.md` + code để tìm task/đoạn sai, rồi sửa và thêm test
 tái hiện. Sửa xong **chờ engineer confirm** mới đụng tới docs.
 
-**Mở rộng feature đã có:** cập nhật `prd.md` → `/spec` (cập nhật technical_document) →
+**Mở rộng feature đã có:** cập nhật `product/<f>.md` → `/spec` (cập nhật technical_document) →
 `/tasks` (thêm task mới) → duyệt → `/implement` → confirm.
 
 **Sửa vặt 1–2 dòng** (typo, đổi 1 màu): khỏi cần pipeline — sửa thẳng rồi commit.

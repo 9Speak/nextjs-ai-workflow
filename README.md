@@ -34,7 +34,7 @@ tasks** trước khi code, **confirm** trước khi cập nhật docs.
 | Vai trò | Việc | File |
 |---------|------|------|
 | **Designer** | Giữ design system + thiết kế Figma | `ai/DESIGN_SYSTEM.md` |
-| **PM** | Viết yêu cầu + dán link Figma | `ai/<ten>/prd.md` |
+| **PM** | Viết yêu cầu + dán link Figma | `product/<ten>.md` |
 | **Engineer** | Chạy lệnh, **duyệt tasks**, test, **confirm**, ghi bug | `ai/<ten>/tasks.md`, `feedback.md` |
 | **Claude** | spec → tasks → code → test → fix → docs | (tự động) |
 
@@ -51,8 +51,8 @@ bun install
    /mcp  → figma → authenticate
 
 # 3. Làm 1 feature từ đầu đến cuối:
-   /new quiz               # tạo ai/quiz/ + branch feat/quiz
-   # → PM mở ai/quiz/prd.md, điền yêu cầu + dán link Figma
+   /new quiz               # tạo product/quiz.md + ai/quiz/ + branch feat/quiz
+   # → PM mở product/quiz.md, điền yêu cầu + dán link Figma
    /sync                   # kéo design về (nếu có Figma)
    /spec                   # PRD → technical_document.md
    /tasks                  # → tasks.md, rồi engineer đổi "Duyệt: ✅ ĐÃ DUYỆT"
@@ -72,10 +72,13 @@ Chi tiết: **[docs/SETUP.md](docs/SETUP.md)** (cài đặt) · **[docs/WORKFLOW
 ├── .claude/
 │   ├── settings.json      ← quyền chạy lệnh cho cả team
 │   └── commands/          ← 8 lệnh: design-sync, new, sync, spec, tasks, implement, fix, confirm
+├── product/               ← PM viết PRD ở đây
+│   ├── _template.md        ← mẫu PRD
+│   └── <ten-feature>.md    ← PRD mỗi feature
 ├── ai/
 │   ├── DESIGN_SYSTEM.md    ← nền tảng chung (Designer sở hữu)
-│   ├── _templates/         ← mẫu prd.md, feedback.md
-│   └── <ten-feature>/      ← mỗi feature 1 thư mục (prd, figma, technical_document, tasks, feedback)
+│   ├── _templates/         ← mẫu feedback.md
+│   └── <ten-feature>/      ← AI/eng sinh: figma, technical_document, tasks, feedback
 ├── docs/
 │   ├── SETUP.md
 │   ├── WORKFLOW.md

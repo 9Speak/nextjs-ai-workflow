@@ -9,10 +9,10 @@ argument-hint: "[ten-feature]  (bỏ trống = suy từ branch)"
 - Thư mục làm việc là `ai/<slug>/`. Nếu thư mục chưa tồn tại, báo người dùng chạy
   `/new <slug>` trước rồi dừng.
 
-Đọc `ai/<slug>/prd.md` và tìm link Figma (dạng `https://figma.com/...` hoặc
+Đọc `product/<slug>.md` (PRD) và tìm link Figma (dạng `https://figma.com/...` hoặc
 `https://figma.com/design/...`, kèm `?node-id=` nếu có).
 
-Nếu không tìm thấy link Figma, báo người dùng thêm vào `ai/<slug>/prd.md` rồi dừng.
+Nếu không tìm thấy link Figma, báo người dùng thêm vào `product/<slug>.md` rồi dừng.
 
 Dùng các tool của **Figma MCP** để lấy design của file/node đó. Kéo về:
 - cấu trúc component và tên layer

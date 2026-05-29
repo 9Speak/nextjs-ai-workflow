@@ -28,4 +28,5 @@ bun run dev     # mở http://localhost:3000
 ```
 
 ## Spec gốc
-[ai/quiz/](../../ai/quiz/) — prd.md, technical_document.md, tasks.md
+- PRD (PM): [product/quiz.md](../../product/quiz.md)
+- Kỹ thuật: [ai/quiz/](../../ai/quiz/) — technical_document.md, tasks.md

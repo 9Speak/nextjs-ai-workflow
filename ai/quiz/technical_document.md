@@ -2,7 +2,7 @@
 
 ## Tổng quan & phạm vi
 Trang `/quiz` trắc nghiệm + tính điểm thời gian thực, landing ở `/`. Câu hỏi hard-code
-(không backend, không API — xem *Out of scope* trong prd.md).
+(không backend, không API — xem *Out of scope* trong product/quiz.md).
 
 ## Kiến trúc / luồng dữ liệu
 - Logic điểm là **hàm thuần** trong `lib/quiz.ts` → dễ test, tách khỏi UI.

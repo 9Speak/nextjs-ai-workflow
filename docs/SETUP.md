@@ -30,7 +30,7 @@ Repo đã có sẵn `.mcp.json` trỏ tới Figma MCP — không cần cấu hì
 2. Chọn **figma** → **authenticate**
 3. Trình duyệt mở ra → cho phép quyền → xong.
 
-Sau bước này, `/sync` sẽ tự kéo design từ link Figma trong `ai/prd.md`. Không cần
+Sau bước này, `/sync` sẽ tự kéo design từ link Figma trong `product/<feature>.md`. Không cần
 Figma API token, không cần copy-paste design thủ công.
 
 > `.claude/settings.json` đã bật `enableAllProjectMcpServers`, nên Claude Code không

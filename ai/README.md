@@ -1,35 +1,38 @@
-# Thư mục ai/ — spec theo từng feature
+# Thư mục ai/ — workspace AI/engineering theo feature
 
-Mỗi feature có **một thư mục riêng**, tạo bằng `/new <slug>`:
+> **PRD do PM viết nằm ở `product/<feature>.md`, KHÔNG ở đây.** Thư mục `ai/` chỉ chứa
+> thứ **AI/engineer** sinh ra từ PRD + thiết kế chung.
 
 ```
+product/
+├── _template.md             ← mẫu PRD (PM copy khi /new)
+├── quiz.md                  ← PRD do PM viết
+└── leader-board.md
+
 ai/
-├── DESIGN_SYSTEM.md     ← nền tảng chung toàn dự án (Designer sở hữu, /design-sync)
-├── _templates/          ← mẫu gốc (đừng sửa trực tiếp)
-│   ├── prd.md
+├── DESIGN_SYSTEM.md         ← nền tảng chung (Designer sở hữu, /design-sync)
+├── _templates/
 │   └── feedback.md
-├── quiz/                ← 1 feature = 1 thư mục = 1 branch feat/quiz
-│   ├── prd.md                   ← PM điền (yêu cầu + link Figma)
-│   ├── figma.md                 ← tự sinh bởi /sync
-│   ├── technical_document.md    ← tự sinh bởi /spec (thiết kế kỹ thuật)
-│   ├── tasks.md                 ← tự sinh bởi /tasks (task + trạng thái, engineer duyệt)
-│   └── feedback.md              ← Engineer ghi bug → /fix
-└── leaderboard/
+├── quiz/
+│   ├── figma.md                 ← /sync (từ link Figma trong product/quiz.md)
+│   ├── technical_document.md    ← /spec (từ product/quiz.md)
+│   ├── tasks.md                 ← /tasks (task + trạng thái, engineer duyệt)
+│   └── feedback.md              ← engineer ghi bug → /fix
+└── leader-board/
     └── ...
 ```
 
+**Vì sao tách `product/` và `ai/`:** PRD là tài liệu **sản phẩm của PM**; technical_document
++ tasks là tài liệu **kỹ thuật do AI/engineer sinh**. Tách khu giúp rõ ai sở hữu cái gì,
+PM không phải lội vào file kỹ thuật.
+
 **Vòng đời 1 feature:**
-`/new` → PM điền `prd.md` → `/sync` (Figma) → `/spec` (→ technical_document) →
-`/tasks` (→ tasks.md, engineer **duyệt**) → `/implement` → test → `/fix` (nếu bug) →
-engineer **confirm** → `/confirm` (cập nhật docs + CHANGELOG).
+`/new` → PM điền `product/<f>.md` → `/sync` (Figma) → `/spec` (→ technical_document) →
+`/tasks` (→ tasks.md, engineer **duyệt**) → `/implement` → `/fix` (nếu bug) →
+engineer **confirm** → `/confirm` (docs + CHANGELOG).
 
-**Vì sao tách thư mục:** hai người làm hai feature cùng lúc không ghi đè file của nhau,
-mỗi feature đi ra một PR độc lập. Branch `feat/<slug>` là ngữ cảnh — các lệnh tự suy ra
-feature từ tên branch.
+**Cô lập xung đột:** mỗi feature = `product/<f>.md` + `ai/<f>/` + branch `feat/<f>` + 1 PR.
+Hai người làm hai feature không đụng file của nhau.
 
-**`DESIGN_SYSTEM.md` là toàn cục** (không thuộc feature nào): mọi feature phải dùng token
-+ primitive trong đó. Cập nhật bằng `/design-sync`, đi ra PR `chore/design-system` riêng.
-
-**`tasks.md` có cổng duyệt:** dòng `## Duyệt:` phải là `✅ ĐÃ DUYỆT` thì `/implement` mới chạy.
-Trạng thái mỗi task: `⬜ todo` → `🟡 chờ confirm` (đã làm) → `✅ confirmed` (engineer OK);
-`🔴 đang sửa` khi `/fix` xử lý bug.
+**`tasks.md` có cổng duyệt:** dòng `## Duyệt:` phải `✅ ĐÃ DUYỆT` thì `/implement` mới chạy.
+Trạng thái task: `⬜ todo` → `🟡 chờ confirm` → `✅ confirmed`; `🔴 đang sửa` khi `/fix`.

@@ -7,7 +7,7 @@ argument-hint: "[ten-feature]  (bỏ trống = suy từ branch)"
 --show-current` bỏ tiền tố `feat/`. Thư mục `ai/<slug>/`. Chưa có → nhắc `/new` rồi dừng.
 
 Đọc:
-- Yêu cầu: `ai/<slug>/prd.md`
+- Yêu cầu (PRD do PM viết): `product/<slug>.md`
 - Design (nếu có): `ai/<slug>/figma.md`
 - Design system: `ai/DESIGN_SYSTEM.md`
 - Code liên quan trong `front-end/src/` (để thiết kế bám thực tế)

@@ -5,7 +5,7 @@ argument-hint: "[ten-feature]"
 
 **Xác định feature** (như `/spec`: `$ARGUMENTS` hoặc branch `feat/<slug>`). Thư mục `ai/<slug>/`.
 
-Đọc `ai/<slug>/technical_document.md` (tham chiếu thêm `prd.md`, `figma.md`).
+Đọc `ai/<slug>/technical_document.md` (tham chiếu thêm `product/<slug>.md`, `ai/<slug>/figma.md`).
 Nếu chưa có `technical_document.md` → nhắc chạy `/spec` trước rồi dừng.
 
 Chia thiết kế thành các **task nhỏ, làm & test được độc lập**, theo thứ tự hợp lý.
